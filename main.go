@@ -16,7 +16,7 @@ type credentials struct {
 }
 
 type dnsRecordsJSON struct {
-	Data *innerData `json:"data"`
+	Data map[string]map[string]string `json:"data"`
 }
 
 type innerData struct {
@@ -84,7 +84,11 @@ func main() {
 	fmt.Printf("Dreamhost API key is: %s\n", settings.ApiKey)
 	fmt.Printf("Domains to update are: %s\n", settings.Domains)
 	dnsRecords := getDNSRecords(settings.ApiKey)
-	var records *dnsRecordsJSON
-	err = json.Unmarshal([]byte(dnsRecords), &records)
-	fmt.Printf("DNS Records are: %s\n", records.Data)
+	fmt.Printf("DNS Records are: %s\n", dnsRecords)
+	// var records *dnsRecordsJSON
+	//records = &dnsRecordsJSON{
+	//	Data: map[string]map[string]string{"something": "something"},
+	//}
+	//err = json.Unmarshal([]byte(dnsRecords), &records)
+	// fmt.Printf("DNS Records are: %s\n", records.Data)
 }
