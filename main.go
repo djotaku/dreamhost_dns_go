@@ -94,7 +94,7 @@ func addDNSRecord(domain string, newIPAddress string, apiKey string) string {
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 	}
-	fmt.Printf("Result of trying to add DNS record is %s\n", result.Data)
+	fmt.Printf("Result of trying to add DNS record for %s is %s\n", domain, result.Data)
 	return result.Data
 }
 
@@ -107,7 +107,7 @@ func deleteDNSRecord(domain string, newIPAddress string, apiKey string) string {
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 	}
-	fmt.Printf("Result of trying to delete DNS record is %s\n", result.Data)
+	fmt.Printf("Result of trying to delete DNS record for %s is %s\n", domain, result.Data)
 	return result.Data
 }
 
