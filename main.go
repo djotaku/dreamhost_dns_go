@@ -10,17 +10,29 @@ import (
 	"os"
 )
 
+//credentials are the credentials needed to talk to the Dreamhost API
 type credentials struct {
 	ApiKey  string `json:"api_key"`
 	Domains []string
 }
 
+//dnsRecordsJSON holds the JSON returned by the Dreamhost API
 type dnsRecordsJSON struct {
-	Data map[string]map[string]string `json:"data"`
+	Data []map[string]string `json:"data"`
+}
+
+type UrlIPPair struct {
+	url       string
+	ipAddress string
 }
 
 type innerData struct {
 	Records []map[string]string `json:"data"`
+}
+
+// commandResult for when you only care about the result
+type commandResult struct {
+	Data string `json: "result"`
 }
 
 // webGet handles contacting a URL
@@ -55,9 +67,54 @@ func submitDreamhostCommand(command string, apiKey string) string {
 	return dreamhostResponse
 }
 
+//getDNSRecords gets the DNS records from the Dreamhost API
 func getDNSRecords(apiKey string) string {
 	dnsRecords := submitDreamhostCommand("dns-list_records", apiKey)
 	return dnsRecords
+}
+
+// contains checks if a string is present in a slice
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
+}
+
+// addDNSRecord adds an IP address to a domain in dreamhost
+func addDNSRecord(domain string, newIPAddress string, apiKey string) string {
+	command := "dns-add_record&record=" + domain + "&type=A" + "&value=" + newIPAddress
+	response := submitDreamhostCommand(command, apiKey)
+	var result commandResult
+	err := json.Unmarshal([]byte(response), &result)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+	}
+	fmt.Printf("Result of trying to add DNS record is %s\n", result.Data)
+	return result.Data
+}
+
+// deleteDNSRecord deletes an IP address to a domain in dreamhost
+func deleteDNSRecord(domain string, newIPAddress string, apiKey string) string {
+	command := "dns-remove_record&record=" + domain + "&type=A" + "&value=" + newIPAddress
+	response := submitDreamhostCommand(command, apiKey)
+	var result commandResult
+	err := json.Unmarshal([]byte(response), &result)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+	}
+	fmt.Printf("Result of trying to add DNS record is %s\n", result.Data)
+	return result.Data
+}
+
+func updateDNSRecord(domain string, currentIP string, newIPAddress string, apiKey string){
+  resultOfAdd := addDNSRecord(domain, newIPAddress, apiKey)
+  if resultOfAdd == "sucess"{
+    deleteDNSRecord(domain, currentIP, apiKey)
+  }
 }
 
 func main() {
@@ -84,11 +141,24 @@ func main() {
 	fmt.Printf("Dreamhost API key is: %s\n", settings.ApiKey)
 	fmt.Printf("Domains to update are: %s\n", settings.Domains)
 	dnsRecords := getDNSRecords(settings.ApiKey)
-	fmt.Printf("DNS Records are: %s\n", dnsRecords)
-	// var records *dnsRecordsJSON
-	//records = &dnsRecordsJSON{
-	//	Data: map[string]map[string]string{"something": "something"},
-	//}
-	//err = json.Unmarshal([]byte(dnsRecords), &records)
-	// fmt.Printf("DNS Records are: %s\n", records.Data)
+	var records dnsRecordsJSON
+	err = json.Unmarshal([]byte(dnsRecords), &records)
+	if err != nil {
+		fmt.Printf("err is: %s\n", err)
+	}
+	var domainDNSIPPairs []UrlIPPair
+	for _, url := range records.Data {
+		if contains(settings.Domains, url["record"]) {
+			pair := UrlIPPair{url: url["record"], ipAddress: url["value"]}
+			domainDNSIPPairs = append(domainDNSIPPairs, pair)
+		}
+	}
+	for _, domanToUpdate := range domainDNSIPPairs {
+		currentIP := domanToUpdate.ipAddress
+		domain := domanToUpdate.url
+		if currentIP != newIPAddress {
+			updateDNSRecord(domain, currentIP, newIPAddress, settings.ApiKey)
+		}
+	}
+  // last thing for parity with my Python one - adding in new domains if there are new domains in the settings
 }
