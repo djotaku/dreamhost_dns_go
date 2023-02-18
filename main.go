@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+  "github.com/adrg/xdg"
 )
 
 //credentials are the credentials needed to talk to the Dreamhost API
@@ -32,7 +33,7 @@ type innerData struct {
 
 // commandResult for when you only care about the result
 type commandResult struct {
-	Data string `json: "result"`
+	Data string `json:"result"`
 }
 
 // webGet handles contacting a URL
@@ -118,11 +119,17 @@ func updateDNSRecord(domain string, currentIP string, newIPAddress string, apiKe
 }
 
 func main() {
-	newIPAddress := getHostIpAddress()
-	settingsJson, err := os.Open("settings.json")
+  configFilePath, err := xdg.ConfigFile("dreamhostdns/settings.json")
+  if err != nil{
+    log.Fatal(err)
+  }
+  fmt.Printf("settings.jon should be at the following path: %s\n", configFilePath)
+  newIPAddress := getHostIpAddress()
+	settingsJson, err := os.Open(configFilePath)
 	// if os.Open returns an error then handle it
 	if err != nil {
 		fmt.Println(err)
+    os.Exit(1)
 	}
 	defer func(settingsJson *os.File) {
 		err := settingsJson.Close()
