@@ -167,5 +167,18 @@ func main() {
 			updateDNSRecord(domain, currentIP, newIPAddress, settings.ApiKey)
 		}
 	}
-  // last thing for parity with my Python one - adding in new domains if there are new domains in the settings
+  // add in new domains that weren't already in Dreamhost (also handles accidentally deleted domains)
+  var updatedDomains []string
+  for _, domainPair := range domainDNSIPPairs{
+    updatedDomains = append(updatedDomains, domainPair.url)
+  }
+  var newDomains []string
+  for _, domain := range settings.Domains{
+    if (contains(updatedDomains, domain) == false){
+      newDomains = append(newDomains, domain)
+    }
+  }
+  for _, domain := range newDomains{
+    addDNSRecord(domain, newIPAddress, settings.ApiKey)
+  }
 }
