@@ -21,3 +21,6 @@ It should be put into the right xdg directory for your system. The output of the
 
 Originally I wrote this program in [Python](https://github.com/djotaku/dreamhost_dns), but every time I upgrade the computer to a new version of Python, my virtual environm environment broke. That was really annoying for a script that I always want to work correctly.
 
+# TODO
+
+Figure out how to have Github actions generate a new build when I push updates.
