@@ -16,6 +16,7 @@ Create a settings.json file that looks like this:
 ```
 It should be put into the right xdg directory for your system. The output of the program will tell you where that is. On Linux/Unix this is $HOME/.config/dreamhostdns/settings.json
 
+Then go into the releases and grab the binary to run. Soon I'll update the Github action to also generate Windows binaries.
 
 # Why Go?
 
