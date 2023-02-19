@@ -7,9 +7,10 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
-  "github.com/adrg/xdg"
-  "net/url"
+
+	"github.com/adrg/xdg"
 )
 
 //credentials are the credentials needed to talk to the Dreamhost API
@@ -63,11 +64,11 @@ func getHostIpAddress() string {
 //submitDreamhostCommand takes in a command string and api key, contacts the API and returns the result
 func submitDreamhostCommand(command string, apiKey string) string {
 	apiURLBase := "https://api.dreamhost.com/?"
-  queryParameters := url.Values{}
-  queryParameters.Set("key", apiKey)
-  queryParameters.Add("cmd", command)
-  queryParameters.Add("format", "json")
-	fullURL := apiURLBase + queryParameters.Encode() 
+	queryParameters := url.Values{}
+	queryParameters.Set("key", apiKey)
+	queryParameters.Add("cmd", command)
+	queryParameters.Add("format", "json")
+	fullURL := apiURLBase + queryParameters.Encode()
 	dreamhostResponse := webGet(fullURL)
 	return dreamhostResponse
 }
@@ -115,25 +116,25 @@ func deleteDNSRecord(domain string, newIPAddress string, apiKey string) string {
 	return result.Data
 }
 
-func updateDNSRecord(domain string, currentIP string, newIPAddress string, apiKey string){
-  resultOfAdd := addDNSRecord(domain, newIPAddress, apiKey)
-  if resultOfAdd == "sucess"{
-    deleteDNSRecord(domain, currentIP, apiKey)
-  }
+func updateDNSRecord(domain string, currentIP string, newIPAddress string, apiKey string) {
+	resultOfAdd := addDNSRecord(domain, newIPAddress, apiKey)
+	if resultOfAdd == "sucess" {
+		deleteDNSRecord(domain, currentIP, apiKey)
+	}
 }
 
 func main() {
-  configFilePath, err := xdg.ConfigFile("dreamhostdns/settings.json")
-  if err != nil{
-    log.Fatal(err)
-  }
-  fmt.Printf("settings.jon should be at the following path: %s\n", configFilePath)
-  newIPAddress := getHostIpAddress()
+	configFilePath, err := xdg.ConfigFile("dreamhostdns/settings.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("settings.jon should be at the following path: %s\n", configFilePath)
+	newIPAddress := getHostIpAddress()
 	settingsJson, err := os.Open(configFilePath)
 	// if os.Open returns an error then handle it
 	if err != nil {
 		fmt.Println(err)
-    os.Exit(1)
+		os.Exit(1)
 	}
 	defer func(settingsJson *os.File) {
 		err := settingsJson.Close()
@@ -157,32 +158,25 @@ func main() {
 	if err != nil {
 		fmt.Printf("err is: %s\n", err)
 	}
-	var domainDNSIPPairs []UrlIPPair
+
+	var updatedDomains []string
 	for _, url := range records.Data {
 		if contains(settings.Domains, url["record"]) {
-			pair := UrlIPPair{url: url["record"], ipAddress: url["value"]}
-			domainDNSIPPairs = append(domainDNSIPPairs, pair)
+			currentDomain := UrlIPPair{url: url["record"], ipAddress: url["value"]}
+			updatedDomains = append(updatedDomains, currentDomain.url)
+			if currentDomain.ipAddress != newIPAddress {
+				log.Printf("%s has an old IP of %s. Will attempt to change to %s", currentDomain.url, currentDomain.ipAddress, newIPAddress)
+				updateDNSRecord(currentDomain.url, currentDomain.ipAddress, newIPAddress, settings.ApiKey)
+			} else {
+				log.Printf("%s is already set to the IP address: %s", currentDomain.url, currentDomain.ipAddress)
+			}
+
 		}
 	}
-	for _, domanToUpdate := range domainDNSIPPairs {
-		currentIP := domanToUpdate.ipAddress
-		domain := domanToUpdate.url
-		if currentIP != newIPAddress {
-			updateDNSRecord(domain, currentIP, newIPAddress, settings.ApiKey)
+	// add in new domains that weren't already in Dreamhost (also handles accidentally deleted domains)
+	for _, domain := range settings.Domains {
+		if !contains(updatedDomains, domain) {
+			addDNSRecord(domain, newIPAddress, settings.ApiKey)
 		}
 	}
-  // add in new domains that weren't already in Dreamhost (also handles accidentally deleted domains)
-  var updatedDomains []string
-  for _, domainPair := range domainDNSIPPairs{
-    updatedDomains = append(updatedDomains, domainPair.url)
-  }
-  var newDomains []string
-  for _, domain := range settings.Domains{
-    if (contains(updatedDomains, domain) == false){
-      newDomains = append(newDomains, domain)
-    }
-  }
-  for _, domain := range newDomains{
-    addDNSRecord(domain, newIPAddress, settings.ApiKey)
-  }
 }
