@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
   "github.com/adrg/xdg"
+  "net/url"
 )
 
 //credentials are the credentials needed to talk to the Dreamhost API
@@ -61,9 +62,12 @@ func getHostIpAddress() string {
 
 //submitDreamhostCommand takes in a command string and api key, contacts the API and returns the result
 func submitDreamhostCommand(command string, apiKey string) string {
-	apiURLBase := "https://api.dreamhost.com"
-	substring := "/?key=" + apiKey + "&cmd=" + command + "&format=json"
-	fullURL := apiURLBase + substring
+	apiURLBase := "https://api.dreamhost.com/?"
+  queryParameters := url.Values{}
+  queryParameters.Set("key", apiKey)
+  queryParameters.Add("cmd", command)
+  queryParameters.Add("format", "json")
+	fullURL := apiURLBase + queryParameters.Encode() 
 	dreamhostResponse := webGet(fullURL)
 	return dreamhostResponse
 }
