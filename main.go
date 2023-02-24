@@ -8,7 +8,8 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
+	"os
+	"flag"
 
 	"github.com/adrg/xdg"
 )
@@ -124,6 +125,11 @@ func updateDNSRecord(domain string, currentIP string, newIPAddress string, apiKe
 }
 
 func main() {
+
+	// parse CLI flags
+	verbose := flag.Bool("-v", false, "prints log output to the commandline.")
+	flag.Parse()
+
 	configFilePath, err := xdg.ConfigFile("dreamhostdns/settings.json")
 	if err != nil {
 		log.Fatal(err)
