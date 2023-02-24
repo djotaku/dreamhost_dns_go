@@ -42,15 +42,15 @@ type commandResult struct {
 func webGet(url string) string {
 	response, err := http.Get(url)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	result, err := io.ReadAll(response.Body)
 	response.Body.Close()
 	if response.StatusCode > 299 {
-		log.Fatalf("Response failed with status code: %d and \nbody: %s\n", response.StatusCode, result)
+		log.Printf("Response failed with status code: %d and \nbody: %s\n", response.StatusCode, result)
 	}
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	return string(result)
 }
@@ -99,7 +99,7 @@ func addDNSRecord(domain string, newIPAddress string, apiKey string) string {
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 	}
-	fmt.Printf("Result of trying to add DNS record for %s is %s\n", domain, result.Data)
+	log.Printf("Result of trying to add DNS record for %s is %s\n", domain, result.Data)
 	return result.Data
 }
 
@@ -110,9 +110,9 @@ func deleteDNSRecord(domain string, newIPAddress string, apiKey string) string {
 	var result commandResult
 	err := json.Unmarshal([]byte(response), &result)
 	if err != nil {
-		fmt.Printf("Error: %s\n", err)
+		log.Printf("Error: %s\n", err)
 	}
-	fmt.Printf("Result of trying to delete DNS record for %s is %s\n", domain, result.Data)
+	log.Printf("Result of trying to delete DNS record for %s is %s\n", domain, result.Data)
 	return result.Data
 }
 
@@ -163,7 +163,7 @@ func main() {
 	var updatedDomains []string
 	for _, url := range records.Data {
 		if contains(settings.Domains, url["record"]) {
-			currentDomain := UrlIPPair{url: url["record"], ipAddress: url["value"]}
+			currentDomain := urlIPPair{url: url["record"], ipAddress: url["value"]}
 			updatedDomains = append(updatedDomains, currentDomain.url)
 			if currentDomain.ipAddress != newIPAddress {
 				log.Printf("%s has an old IP of %s. Will attempt to change to %s", currentDomain.url, currentDomain.ipAddress, newIPAddress)
