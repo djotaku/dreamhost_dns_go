@@ -24,7 +24,7 @@ type dnsRecordsJSON struct {
 	Data []map[string]string `json:"data"`
 }
 
-type UrlIPPair struct {
+type urlIPPair struct {
 	url       string
 	ipAddress string
 }
