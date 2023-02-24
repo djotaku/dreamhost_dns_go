@@ -128,17 +128,18 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("settings.jon should be at the following path: %s\n", configFilePath)
+	fmt.Printf("Looking for settings.jon should be at the following path: %s\n", configFilePath)
 	newIPAddress := getHostIpAddress()
 	settingsJson, err := os.Open(configFilePath)
 	// if os.Open returns an error then handle it
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		fmt.Println("Unable to open the confix file. Did you place it in the right spot?")
+		log.Fatal(err)
 	}
 	defer func(settingsJson *os.File) {
 		err := settingsJson.Close()
 		if err != nil {
+			log.Printf("Couldn't close the settings file. Error: %s", err)
 
 		}
 	}(settingsJson)
@@ -146,17 +147,17 @@ func main() {
 	var settings *credentials
 	err = json.Unmarshal(byteValue, &settings)
 	if err != nil {
-		fmt.Printf("could not unmarshal json: %s\n", err)
+		fmt.Println("Check that you do not have errors in your JSON file.")
+		log.Fatalf("could not unmarshal json: %s\n", err)
 		return
 	}
 	fmt.Printf("IP address outside the NAT is: %s\n", newIPAddress)
-	fmt.Printf("Dreamhost API key is: %s\n", settings.ApiKey)
 	fmt.Printf("Domains to update are: %s\n", settings.Domains)
 	dnsRecords := getDNSRecords(settings.ApiKey)
 	var records dnsRecordsJSON
 	err = json.Unmarshal([]byte(dnsRecords), &records)
 	if err != nil {
-		fmt.Printf("err is: %s\n", err)
+		log.Fatalf("Unable to unmarshall JSON from Dreamhost. err is: %s\n", err)
 	}
 
 	var updatedDomains []string
