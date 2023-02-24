@@ -2,14 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
-	"os
-	"flag"
+	"os"
 
 	"github.com/adrg/xdg"
 )
