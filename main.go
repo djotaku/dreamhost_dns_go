@@ -126,13 +126,27 @@ func updateDNSRecord(domain string, currentIP string, newIPAddress string, apiKe
 
 func main() {
 
+	logFilePath, _ := xdg.DataFile("dreamhostdns/dnsupdates.log")
+	// once you figure out how to import https://github.com/natefinch/lumberjack/tree/v2.0 , use that
+	logFile, err := os.OpenFile(logFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0775)
+	if err != nil {
+		log.Printf("Error %s\n", err)
+	}
+	fileLogger := log.New(logFile, "", log.LstdFlags)
+
 	// parse CLI flags
-	verbose := flag.Bool("-v", false, "prints log output to the commandline.")
+	verbose := flag.Bool("v", false, "prints log output to the commandline.")
 	flag.Parse()
+
+	// user wants verbose logs
+	if *verbose {
+		fmt.Println("User chose verbose CLI output!") // this is just a placeholder
+	}
 
 	configFilePath, err := xdg.ConfigFile("dreamhostdns/settings.json")
 	if err != nil {
 		log.Fatal(err)
+		fileLogger.Println(err)
 	}
 	fmt.Printf("Looking for settings.jon should be at the following path: %s\n", configFilePath)
 	newIPAddress := getHostIpAddress()
@@ -140,12 +154,14 @@ func main() {
 	// if os.Open returns an error then handle it
 	if err != nil {
 		fmt.Println("Unable to open the confix file. Did you place it in the right spot?")
+    fileLogger.Println(err)
 		log.Fatal(err)
 	}
 	defer func(settingsJson *os.File) {
 		err := settingsJson.Close()
 		if err != nil {
 			log.Printf("Couldn't close the settings file. Error: %s", err)
+      fileLogger.Printf("Couldn't close the settings file. Error: %s", err)
 
 		}
 	}(settingsJson)
@@ -154,15 +170,18 @@ func main() {
 	err = json.Unmarshal(byteValue, &settings)
 	if err != nil {
 		fmt.Println("Check that you do not have errors in your JSON file.")
+    fileLogger.Printf("Could not unmashal json: %s\n", err)
 		log.Fatalf("could not unmarshal json: %s\n", err)
 		return
 	}
 	fmt.Printf("IP address outside the NAT is: %s\n", newIPAddress)
-	fmt.Printf("Domains to update are: %s\n", settings.Domains)
+	fileLogger.Printf("IP address outsite the NAT is %s\n", newIPAddress)
+  fmt.Printf("Domains to update are: %s\n", settings.Domains)
 	dnsRecords := getDNSRecords(settings.ApiKey)
 	var records dnsRecordsJSON
 	err = json.Unmarshal([]byte(dnsRecords), &records)
 	if err != nil {
+    fileLogger.Printf("Unable to unmashal the JSON from Dreamhost. err is: %n", err)
 		log.Fatalf("Unable to unmarshall JSON from Dreamhost. err is: %s\n", err)
 	}
 
@@ -172,10 +191,12 @@ func main() {
 			currentDomain := urlIPPair{url: url["record"], ipAddress: url["value"]}
 			updatedDomains = append(updatedDomains, currentDomain.url)
 			if currentDomain.ipAddress != newIPAddress {
+        fileLogger.Printf("%s has an old IP of %s. Will attempt to change to %s", currentDomain.url, currentDomain.ipAddress, newIPAddress)
 				log.Printf("%s has an old IP of %s. Will attempt to change to %s", currentDomain.url, currentDomain.ipAddress, newIPAddress)
 				updateDNSRecord(currentDomain.url, currentDomain.ipAddress, newIPAddress, settings.ApiKey)
 			} else {
-				log.Printf("%s is already set to the IP address: %s", currentDomain.url, currentDomain.ipAddress)
+        fileLogger.Printf("%s is already set to IP address: %s", currentDomain.url, currentDomain.ipAddress)
+        log.Printf("%s is already set to the IP address: %s", currentDomain.url, currentDomain.ipAddress)
 			}
 
 		}
