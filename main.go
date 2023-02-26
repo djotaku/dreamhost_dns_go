@@ -81,7 +81,6 @@ func getDNSRecords(apiKey string) string {
 	return dnsRecords
 }
 
-
 //conditionalLog will print a log to the console if logActive true
 func conditionalLog(message string, logActive bool) {
 	if logActive {
