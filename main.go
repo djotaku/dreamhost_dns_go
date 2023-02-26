@@ -91,6 +91,13 @@ func contains(s []string, str string) bool {
 	return false
 }
 
+//conditionalLog will print a log to the console if logActive true
+func conditionalLog(message string, logActive bool){
+  if logActive{
+    log.Println(message)
+  }
+}
+
 // addDNSRecord adds an IP address to a domain in dreamhost
 func addDNSRecord(domain string, newIPAddress string, apiKey string) string {
 	command := "dns-add_record&record=" + domain + "&type=A" + "&value=" + newIPAddress
@@ -145,8 +152,8 @@ func main() {
 
 	configFilePath, err := xdg.ConfigFile("dreamhostdns/settings.json")
 	if err != nil {
-		log.Fatal(err)
-		fileLogger.Println(err)
+    conditionalLog(err.Error(), *verbose)
+		fileLogger.Fatal(err)
 	}
 	fmt.Printf("Looking for settings.jon should be at the following path: %s\n", configFilePath)
 	newIPAddress := getHostIpAddress()
@@ -154,14 +161,15 @@ func main() {
 	// if os.Open returns an error then handle it
 	if err != nil {
 		fmt.Println("Unable to open the confix file. Did you place it in the right spot?")
-    fileLogger.Println(err)
-		log.Fatal(err)
+    conditionalLog(err.Error(), *verbose)
+    fileLogger.Fatal(err)
 	}
 	defer func(settingsJson *os.File) {
 		err := settingsJson.Close()
 		if err != nil {
-			log.Printf("Couldn't close the settings file. Error: %s", err)
-      fileLogger.Printf("Couldn't close the settings file. Error: %s", err)
+      errorString := fmt.Sprintf("Couldn't close the settings file. Error: %s", err)
+			conditionalLog(errorString, *verbose)
+      fileLogger.Fatal(errorString)
 
 		}
 	}(settingsJson)
@@ -170,8 +178,9 @@ func main() {
 	err = json.Unmarshal(byteValue, &settings)
 	if err != nil {
 		fmt.Println("Check that you do not have errors in your JSON file.")
-    fileLogger.Printf("Could not unmashal json: %s\n", err)
-		log.Fatalf("could not unmarshal json: %s\n", err)
+    errorString := fmt.Sprintf("Could not unmashal json: %s\n", err)
+    conditionalLog(errorString, *verbose)
+    fileLogger.Fatal(errorString)
 		return
 	}
 	fmt.Printf("IP address outside the NAT is: %s\n", newIPAddress)
@@ -181,8 +190,9 @@ func main() {
 	var records dnsRecordsJSON
 	err = json.Unmarshal([]byte(dnsRecords), &records)
 	if err != nil {
-    fileLogger.Printf("Unable to unmashal the JSON from Dreamhost. err is: %n", err)
-		log.Fatalf("Unable to unmarshall JSON from Dreamhost. err is: %s\n", err)
+    errorString := fmt.Sprintf("Unable to unmashal the JSON from Dreamhost. err is: %n", err)
+    conditionalLog(errorString, *verbose)
+    fileLogger.Fatal(errorString)
 	}
 
 	var updatedDomains []string
@@ -191,12 +201,14 @@ func main() {
 			currentDomain := urlIPPair{url: url["record"], ipAddress: url["value"]}
 			updatedDomains = append(updatedDomains, currentDomain.url)
 			if currentDomain.ipAddress != newIPAddress {
-        fileLogger.Printf("%s has an old IP of %s. Will attempt to change to %s", currentDomain.url, currentDomain.ipAddress, newIPAddress)
-				log.Printf("%s has an old IP of %s. Will attempt to change to %s", currentDomain.url, currentDomain.ipAddress, newIPAddress)
+        logString := fmt.Sprintf("%s has an old IP of %s. Will attempt to change to %s", currentDomain.url, currentDomain.ipAddress, newIPAddress)
+        fileLogger.Printf(logString)
+        conditionalLog(logString, *verbose)
 				updateDNSRecord(currentDomain.url, currentDomain.ipAddress, newIPAddress, settings.ApiKey)
 			} else {
-        fileLogger.Printf("%s is already set to IP address: %s", currentDomain.url, currentDomain.ipAddress)
-        log.Printf("%s is already set to the IP address: %s", currentDomain.url, currentDomain.ipAddress)
+        logString := fmt.Sprintf("%s is already set to IP address: %s", currentDomain.url, currentDomain.ipAddress)
+        fileLogger.Println(logString)
+        conditionalLog(logString, *verbose)
 			}
 
 		}
