@@ -81,16 +81,6 @@ func getDNSRecords(apiKey string) string {
 	return dnsRecords
 }
 
-// contains checks if a string is present in a slice
-func contains(s []string, str string) bool {
-	for _, v := range s {
-		if v == str {
-			return true
-		}
-	}
-
-	return false
-}
 
 //conditionalLog will print a log to the console if logActive true
 func conditionalLog(message string, logActive bool) {
