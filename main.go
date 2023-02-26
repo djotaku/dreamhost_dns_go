@@ -48,7 +48,8 @@ func webGet(url string) string {
 	result, err := io.ReadAll(response.Body)
 	response.Body.Close()
 	if response.StatusCode > 299 {
-		log.Printf("Response failed with status code: %d and \nbody: %s\n", response.StatusCode, result)
+    statusCodeString := fmt.Sprintf("Response failed with status code: %d and \nbody: %s\n", response.StatusCode, result)
+    log.Println(statusCodeString)
 	}
 	if err != nil {
 		log.Println(err)
