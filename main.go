@@ -48,7 +48,8 @@ func webGet(url string) string {
 	result, err := io.ReadAll(response.Body)
 	response.Body.Close()
 	if response.StatusCode > 299 {
-		log.Printf("Response failed with status code: %d and \nbody: %s\n", response.StatusCode, result)
+		statusCodeString := fmt.Sprintf("Response failed with status code: %d and \nbody: %s\n", response.StatusCode, result)
+		log.Println(statusCodeString)
 	}
 	if err != nil {
 		log.Println(err)
@@ -92,10 +93,10 @@ func contains(s []string, str string) bool {
 }
 
 //conditionalLog will print a log to the console if logActive true
-func conditionalLog(message string, logActive bool){
-  if logActive{
-    log.Println(message)
-  }
+func conditionalLog(message string, logActive bool) {
+	if logActive {
+		log.Println(message)
+	}
 }
 
 // addDNSRecord adds an IP address to a domain in dreamhost
@@ -124,6 +125,7 @@ func deleteDNSRecord(domain string, newIPAddress string, apiKey string) string {
 	return result.Data
 }
 
+//updateDNSRecord adds a record and, if successful, deletes the old one.
 func updateDNSRecord(domain string, currentIP string, newIPAddress string, apiKey string) {
 	resultOfAdd := addDNSRecord(domain, newIPAddress, apiKey)
 	if resultOfAdd == "sucess" {
@@ -145,14 +147,9 @@ func main() {
 	verbose := flag.Bool("v", false, "prints log output to the commandline.")
 	flag.Parse()
 
-	// user wants verbose logs
-	if *verbose {
-		fmt.Println("User chose verbose CLI output!") // this is just a placeholder
-	}
-
 	configFilePath, err := xdg.ConfigFile("dreamhostdns/settings.json")
 	if err != nil {
-    conditionalLog(err.Error(), *verbose)
+		conditionalLog(err.Error(), *verbose)
 		fileLogger.Fatal(err)
 	}
 	fmt.Printf("Looking for settings.jon should be at the following path: %s\n", configFilePath)
@@ -161,15 +158,15 @@ func main() {
 	// if os.Open returns an error then handle it
 	if err != nil {
 		fmt.Println("Unable to open the confix file. Did you place it in the right spot?")
-    conditionalLog(err.Error(), *verbose)
-    fileLogger.Fatal(err)
+		conditionalLog(err.Error(), *verbose)
+		fileLogger.Fatal(err)
 	}
 	defer func(settingsJson *os.File) {
 		err := settingsJson.Close()
 		if err != nil {
-      errorString := fmt.Sprintf("Couldn't close the settings file. Error: %s", err)
+			errorString := fmt.Sprintf("Couldn't close the settings file. Error: %s", err)
 			conditionalLog(errorString, *verbose)
-      fileLogger.Fatal(errorString)
+			fileLogger.Fatal(errorString)
 
 		}
 	}(settingsJson)
@@ -178,45 +175,39 @@ func main() {
 	err = json.Unmarshal(byteValue, &settings)
 	if err != nil {
 		fmt.Println("Check that you do not have errors in your JSON file.")
-    errorString := fmt.Sprintf("Could not unmashal json: %s\n", err)
-    conditionalLog(errorString, *verbose)
-    fileLogger.Fatal(errorString)
+		errorString := fmt.Sprintf("Could not unmashal json: %s\n", err)
+		conditionalLog(errorString, *verbose)
+		fileLogger.Fatal(errorString)
 		return
 	}
 	fmt.Printf("IP address outside the NAT is: %s\n", newIPAddress)
 	fileLogger.Printf("IP address outsite the NAT is %s\n", newIPAddress)
-  fmt.Printf("Domains to update are: %s\n", settings.Domains)
+	fmt.Printf("Domains to update are: %s\n", settings.Domains)
 	dnsRecords := getDNSRecords(settings.ApiKey)
 	var records dnsRecordsJSON
 	err = json.Unmarshal([]byte(dnsRecords), &records)
 	if err != nil {
-    errorString := fmt.Sprintf("Unable to unmashal the JSON from Dreamhost. err is: %n", err)
-    conditionalLog(errorString, *verbose)
-    fileLogger.Fatal(errorString)
+		errorString := fmt.Sprintf("Unable to unmashal the JSON from Dreamhost. err is: %n", err)
+		conditionalLog(errorString, *verbose)
+		fileLogger.Fatal(errorString)
 	}
 
-	var updatedDomains []string
-	for _, url := range records.Data {
-		if contains(settings.Domains, url["record"]) {
-			currentDomain := urlIPPair{url: url["record"], ipAddress: url["value"]}
-			updatedDomains = append(updatedDomains, currentDomain.url)
-			if currentDomain.ipAddress != newIPAddress {
-        logString := fmt.Sprintf("%s has an old IP of %s. Will attempt to change to %s", currentDomain.url, currentDomain.ipAddress, newIPAddress)
-        fileLogger.Printf(logString)
-        conditionalLog(logString, *verbose)
-				updateDNSRecord(currentDomain.url, currentDomain.ipAddress, newIPAddress, settings.ApiKey)
-			} else {
-        logString := fmt.Sprintf("%s is already set to IP address: %s", currentDomain.url, currentDomain.ipAddress)
-        fileLogger.Println(logString)
-        conditionalLog(logString, *verbose)
-			}
-
-		}
+	currentDNSValues := make(map[string]string)
+	for _, record := range records.Data {
+		currentDNSValues[record["record"]] = record["value"]
 	}
-	// add in new domains that weren't already in Dreamhost (also handles accidentally deleted domains)
-	for _, domain := range settings.Domains {
-		if !contains(updatedDomains, domain) {
-			addDNSRecord(domain, newIPAddress, settings.ApiKey)
+
+	for _, myDomain := range settings.Domains {
+		if currentDNSValues[myDomain] == newIPAddress {
+			logString := fmt.Sprintf("%s is already set to IP address: %s", myDomain, newIPAddress)
+			fileLogger.Println(logString)
+			conditionalLog(logString, *verbose)
+		} else {
+			logString := fmt.Sprintf("%s has an IP of %s. (If no value listed, this is a new domain.) Will attempt to change to %s (or add in the new domain)", myDomain, currentDNSValues[myDomain], newIPAddress)
+			fileLogger.Printf(logString)
+			conditionalLog(logString, *verbose)
+			updateDNSRecord(myDomain, currentDNSValues[myDomain], newIPAddress, settings.ApiKey)
+
 		}
 	}
 }
