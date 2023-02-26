@@ -147,11 +147,6 @@ func main() {
 	verbose := flag.Bool("v", false, "prints log output to the commandline.")
 	flag.Parse()
 
-	// user wants verbose logs
-	if *verbose {
-		fmt.Println("User chose verbose CLI output!") // this is just a placeholder
-	}
-
 	configFilePath, err := xdg.ConfigFile("dreamhostdns/settings.json")
 	if err != nil {
 		conditionalLog(err.Error(), *verbose)
@@ -197,7 +192,7 @@ func main() {
 		fileLogger.Fatal(errorString)
 	}
 
-  currentDNSValues := make(map[string]string)
+	currentDNSValues := make(map[string]string)
 	for _, record := range records.Data {
 		currentDNSValues[record["record"]] = record["value"]
 	}
