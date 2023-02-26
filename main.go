@@ -197,7 +197,7 @@ func main() {
 		fileLogger.Fatal(errorString)
 	}
 
-	var currentDNSValues map[string]string
+  currentDNSValues := make(map[string]string)
 	for _, record := range records.Data {
 		currentDNSValues[record["record"]] = record["value"]
 	}
