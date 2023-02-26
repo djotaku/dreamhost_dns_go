@@ -125,6 +125,7 @@ func deleteDNSRecord(domain string, newIPAddress string, apiKey string) string {
 	return result.Data
 }
 
+//updateDNSRecord adds a record and, if successful, deletes the old one.
 func updateDNSRecord(domain string, currentIP string, newIPAddress string, apiKey string) {
 	resultOfAdd := addDNSRecord(domain, newIPAddress, apiKey)
 	if resultOfAdd == "sucess" {
