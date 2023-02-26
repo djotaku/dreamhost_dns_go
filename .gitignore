@@ -19,3 +19,7 @@
 
 # Go workspace file
 go.work
+
+# I added
+.idea
+dreamhost_dns
