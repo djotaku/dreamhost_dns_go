@@ -25,11 +25,6 @@ type dnsRecordsJSON struct {
 	Data []map[string]string `json:"data"`
 }
 
-type urlIPPair struct {
-	url       string
-	ipAddress string
-}
-
 type innerData struct {
 	Records []map[string]string `json:"data"`
 }
