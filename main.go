@@ -135,6 +135,8 @@ func main() {
 		Compress:   true, // disabled by default
 	})
 
+	fileLogger.Println("############ NEW SESSION ################")
+
 	// parse CLI flags
 	verbose := flag.Bool("v", false, "prints log output to the commandline.")
 	flag.Parse()
@@ -144,7 +146,7 @@ func main() {
 		conditionalLog(err.Error(), *verbose)
 		fileLogger.Fatal(err)
 	}
-  fmt.Printf("Logs can be found at: %s\n", logFilePath)
+	fmt.Printf("Logs can be found at: %s\n", logFilePath)
 	fmt.Printf("Looking for settings.jon. The file should be at the following path: %s\n", configFilePath)
 	newIPAddress := getHostIpAddress()
 	settingsJson, err := os.Open(configFilePath)
