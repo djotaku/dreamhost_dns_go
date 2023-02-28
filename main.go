@@ -144,12 +144,13 @@ func main() {
 		conditionalLog(err.Error(), *verbose)
 		fileLogger.Fatal(err)
 	}
-	fmt.Printf("Looking for settings.jon should be at the following path: %s\n", configFilePath)
+  fmt.Printf("Logs can be found at: %s\n", logFilePath)
+	fmt.Printf("Looking for settings.jon. The file should be at the following path: %s\n", configFilePath)
 	newIPAddress := getHostIpAddress()
 	settingsJson, err := os.Open(configFilePath)
 	// if os.Open returns an error then handle it
 	if err != nil {
-		fmt.Println("Unable to open the confix file. Did you place it in the right spot?")
+		fmt.Println("Unable to open the config file. Did you place it in the right spot?")
 		conditionalLog(err.Error(), *verbose)
 		fileLogger.Fatal(err)
 	}
