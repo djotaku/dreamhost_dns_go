@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/adrg/xdg"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 //credentials are the credentials needed to talk to the Dreamhost API
@@ -126,6 +127,15 @@ func main() {
 		log.Printf("Error %s\n", err)
 	}
 	fileLogger := log.New(logFile, "", log.LstdFlags)
+	fileLogger.SetOutput(&lumberjack.Logger{
+		Filename:   logFilePath,
+		MaxSize:    1, // megabytes
+		MaxBackups: 3,
+		MaxAge:     28,   //days
+		Compress:   true, // disabled by default
+	})
+
+	fileLogger.Println("############ NEW SESSION ################")
 
 	// parse CLI flags
 	verbose := flag.Bool("v", false, "prints log output to the commandline.")
@@ -136,12 +146,13 @@ func main() {
 		conditionalLog(err.Error(), *verbose)
 		fileLogger.Fatal(err)
 	}
-	fmt.Printf("Looking for settings.jon should be at the following path: %s\n", configFilePath)
+	fmt.Printf("Logs can be found at: %s\n", logFilePath)
+	fmt.Printf("Looking for settings.jon. The file should be at the following path: %s\n", configFilePath)
 	newIPAddress := getHostIpAddress()
 	settingsJson, err := os.Open(configFilePath)
 	// if os.Open returns an error then handle it
 	if err != nil {
-		fmt.Println("Unable to open the confix file. Did you place it in the right spot?")
+		fmt.Println("Unable to open the config file. Did you place it in the right spot?")
 		conditionalLog(err.Error(), *verbose)
 		fileLogger.Fatal(err)
 	}
