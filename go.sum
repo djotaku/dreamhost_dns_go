@@ -1,6 +1,12 @@
 github.com/adrg/xdg v0.4.0 h1:RzRqFcjH4nE5C6oTAxhBtoE2IRyjBSa62SCbyPidvls=
 github.com/adrg/xdg v0.4.0/go.mod h1:N6ag73EX4wyxeaoeHctc1mas01KZgsj5tYiAIwqJE/E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/djotaku/dreamhostapi v0.0.0-20230228034449-711838fc502e h1:TUnZvpBRcALRwmpoOf2it9MxH0ogc+SJNpKZ8Z+WJxY=
+github.com/djotaku/dreamhostapi v0.0.0-20230228034449-711838fc502e/go.mod h1:xW7bpVRp74Ye0wmmVhKrqtCvs1FmGrgYrhAK0fD8riI=
+github.com/djotaku/dreamhostapi v0.0.0-20230228035107-b8d53d55716f h1:u2LftwFd742vgKM89Eek6z5Q0SF6DBsLuZWVMaVmDjs=
+github.com/djotaku/dreamhostapi v0.0.0-20230228035107-b8d53d55716f/go.mod h1:xW7bpVRp74Ye0wmmVhKrqtCvs1FmGrgYrhAK0fD8riI=
+github.com/djotaku/dreamhostapi v0.0.0-20230228035606-489aba0298d5 h1:k5PND7WwbWp674xSxfC1H3YWN+Exx4hZDgxtRqiMd+w=
+github.com/djotaku/dreamhostapi v0.0.0-20230228035606-489aba0298d5/go.mod h1:xW7bpVRp74Ye0wmmVhKrqtCvs1FmGrgYrhAK0fD8riI=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
