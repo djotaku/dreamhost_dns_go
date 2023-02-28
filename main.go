@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/adrg/xdg"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 //credentials are the credentials needed to talk to the Dreamhost API
@@ -126,6 +127,13 @@ func main() {
 		log.Printf("Error %s\n", err)
 	}
 	fileLogger := log.New(logFile, "", log.LstdFlags)
+	fileLogger.SetOutput(&lumberjack.Logger{
+		Filename:   logFilePath,
+		MaxSize:    1, // megabytes
+		MaxBackups: 3,
+		MaxAge:     28,   //days
+		Compress:   true, // disabled by default
+	})
 
 	// parse CLI flags
 	verbose := flag.Bool("v", false, "prints log output to the commandline.")
