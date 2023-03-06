@@ -41,7 +41,6 @@ func getHostIpAddress(logActive bool) string {
 func main() {
 
 	logFilePath, _ := xdg.DataFile("dreamhostdns/dnsupdates.log")
-	// once you figure out how to import https://github.com/natefinch/lumberjack/tree/v2.0 , use that
 	logFile, err := os.OpenFile(logFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0775)
 	if err != nil {
 		log.Printf("Error %s\n", err)
