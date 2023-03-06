@@ -13,20 +13,20 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-//credentials are the credentials needed to talk to the Dreamhost API
+// credentials are the credentials needed to talk to the Dreamhost API
 type credentials struct {
 	ApiKey  string `json:"api_key"`
 	Domains []string
 }
 
-//conditionalLog will print a log to the console if logActive true
+// conditionalLog will print a log to the console if logActive true
 func conditionalLog(message string, logActive bool) {
 	if logActive {
 		log.Println(message)
 	}
 }
 
-//getHostIpAddress gets the outside IP address of the computer it's on
+// getHostIpAddress gets the outside IP address of the computer it's on
 func getHostIpAddress(logActive bool) string {
 	ipAddress, _, err := dreamhostapi.WebGet("https://api.ipify.org")
 	if err != nil {
