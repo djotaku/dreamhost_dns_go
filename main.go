@@ -13,22 +13,28 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-//credentials are the credentials needed to talk to the Dreamhost API
+// credentials are the credentials needed to talk to the Dreamhost API
 type credentials struct {
 	ApiKey  string `json:"api_key"`
 	Domains []string
 }
 
-//conditionalLog will print a log to the console if logActive true
+// conditionalLog will print a log to the console if logActive true
 func conditionalLog(message string, logActive bool) {
 	if logActive {
 		log.Println(message)
 	}
 }
 
-//getHostIpAddress gets the outside IP address of the computer it's on
-func getHostIpAddress() string {
-	ipAddress := dreamhostapi.WebGet("https://api.ipify.org")
+// getHostIpAddress gets the outside IP address of the computer it's on
+func getHostIpAddress(logActive bool) string {
+	ipAddress, _, err := dreamhostapi.WebGet("https://api.ipify.org")
+	if err != nil {
+		logMessage := fmt.Sprintf("Error getting IP address, cannot continue. Error: %s", err)
+		fmt.Println(logMessage)
+		conditionalLog(logMessage, logActive)
+		log.Fatal(logMessage)
+	}
 	return string(ipAddress)
 }
 
@@ -62,7 +68,7 @@ func main() {
 	}
 	fmt.Printf("Logs can be found at: %s\n", logFilePath)
 	fmt.Printf("Looking for settings.jon. The file should be at the following path: %s\n", configFilePath)
-	newIPAddress := getHostIpAddress()
+	newIPAddress := getHostIpAddress(*verbose)
 	settingsJson, err := os.Open(configFilePath)
 	// if os.Open returns an error then handle it
 	if err != nil {
@@ -92,7 +98,13 @@ func main() {
 	fmt.Printf("IP address outside the NAT is: %s\n", newIPAddress)
 	fileLogger.Printf("IP address outsite the NAT is %s\n", newIPAddress)
 	fmt.Printf("Domains to update are: %s\n", settings.Domains)
-	dnsRecords := dreamhostapi.GetDNSRecords(settings.ApiKey)
+	dnsRecords, err := dreamhostapi.GetDNSRecords(settings.ApiKey)
+	if err != nil {
+		logMessage := fmt.Sprintf("Cannot continue without DNS records. Error: %s", err)
+		fmt.Println(logMessage)
+		conditionalLog(logMessage, *verbose)
+		log.Fatal(logMessage)
+	}
 	var records dreamhostapi.DnsRecordsJSON
 	err = json.Unmarshal([]byte(dnsRecords), &records)
 	if err != nil {
@@ -106,6 +118,7 @@ func main() {
 		currentDNSValues[record["record"]] = record["value"]
 	}
 
+	successMessage := "The following domains successfully updated: "
 	for _, myDomain := range settings.Domains {
 		if currentDNSValues[myDomain] == newIPAddress {
 			logString := fmt.Sprintf("%s is already set to IP address: %s", myDomain, newIPAddress)
@@ -115,8 +128,17 @@ func main() {
 			logString := fmt.Sprintf("%s has an IP of %s. (If no value listed, this is a new domain.) Will attempt to change to %s (or add in the new domain)", myDomain, currentDNSValues[myDomain], newIPAddress)
 			fileLogger.Printf(logString)
 			conditionalLog(logString, *verbose)
-			dreamhostapi.UpdateDNSRecord(myDomain, currentDNSValues[myDomain], newIPAddress, settings.ApiKey)
-
+			addResult, deleteResult, err := dreamhostapi.UpdateDNSRecord(myDomain, currentDNSValues[myDomain], newIPAddress, settings.ApiKey)
+			updateResults := fmt.Sprintf("addResult: %s, deleteResult: %s", addResult, deleteResult)
+			conditionalLog(updateResults, *verbose)
+			if err != nil {
+				logMessage := fmt.Sprintf("An error occurred during DNS update. Add result: %s (did not ocurr if blank). Delete result: %s (did not occur if blank). Error: %s", addResult, deleteResult, err)
+				conditionalLog(logMessage, *verbose)
+				log.Println(logMessage)
+			} else {
+				successMessage += fmt.Sprintf("%s, ", myDomain)
+			}
 		}
 	}
+	fmt.Println(successMessage)
 }
