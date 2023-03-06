@@ -15,6 +15,16 @@ github.com/djotaku/dreamhostapi v1.0.2 h1:lgcf2BsBsTHYX7ygW99YtYje6Ik/IwWQiTfluG
 github.com/djotaku/dreamhostapi v1.0.2/go.mod h1:3r0LLlLoEiVsyo6xN5dZX2+unBHJ0GeW9cXhGOuEOSQ=
 github.com/djotaku/dreamhostapi v1.0.3 h1:NvnUW20PPeCt534i8gwd/fzHEW4LpOAFCI4wEjHJg+w=
 github.com/djotaku/dreamhostapi v1.0.3/go.mod h1:3r0LLlLoEiVsyo6xN5dZX2+unBHJ0GeW9cXhGOuEOSQ=
+github.com/djotaku/dreamhostapi v1.1.0 h1:OCqKEFntieI6s7o2W7p/ggr5NGqX+tFQ2S08VLkbWMw=
+github.com/djotaku/dreamhostapi v1.1.0/go.mod h1:3r0LLlLoEiVsyo6xN5dZX2+unBHJ0GeW9cXhGOuEOSQ=
+github.com/djotaku/dreamhostapi v1.1.1 h1:sf3xajUclC/lNx84QyaPt9vaVtprm5m49uFRX62A7HE=
+github.com/djotaku/dreamhostapi v1.1.1/go.mod h1:3r0LLlLoEiVsyo6xN5dZX2+unBHJ0GeW9cXhGOuEOSQ=
+github.com/djotaku/dreamhostapi v1.2.0 h1:2CKqqhTUBxFcp8Pc2sfO8/3Z2mXUeYBrvUWhyY0uXOA=
+github.com/djotaku/dreamhostapi v1.2.0/go.mod h1:3r0LLlLoEiVsyo6xN5dZX2+unBHJ0GeW9cXhGOuEOSQ=
+github.com/djotaku/dreamhostapi v1.2.1 h1:dPw+GNXHZoj2zmLMEjDS75+JOdtMPRm6khedJaK2pow=
+github.com/djotaku/dreamhostapi v1.2.1/go.mod h1:3r0LLlLoEiVsyo6xN5dZX2+unBHJ0GeW9cXhGOuEOSQ=
+github.com/djotaku/dreamhostapi v1.2.2 h1:CCXk39xXvR8Wm9PjOQc/qRW5SqE0kRrN7a6LmFSoe44=
+github.com/djotaku/dreamhostapi v1.2.2/go.mod h1:3r0LLlLoEiVsyo6xN5dZX2+unBHJ0GeW9cXhGOuEOSQ=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
