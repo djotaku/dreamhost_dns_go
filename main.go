@@ -38,36 +38,14 @@ func getHostIpAddress(logActive bool) string {
 	return string(ipAddress)
 }
 
-func main() {
-
-	logFilePath, _ := xdg.DataFile("dreamhostdns/dnsupdates.log")
-	logFile, err := os.OpenFile(logFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0775)
-	if err != nil {
-		log.Printf("Error %s\n", err)
-	}
-	fileLogger := log.New(logFile, "", log.LstdFlags)
-	fileLogger.SetOutput(&lumberjack.Logger{
-		Filename:   logFilePath,
-		MaxSize:    1, // megabytes
-		MaxBackups: 3,
-		MaxAge:     28,   //days
-		Compress:   true, // disabled by default
-	})
-
-	fileLogger.Println("############ NEW SESSION ################")
-
-	// parse CLI flags
-	verbose := flag.Bool("v", false, "prints log output to the commandline.")
-	flag.Parse()
-
+func getSettings(fileLogger *log.Logger, verbose *bool) *credentials {
 	configFilePath, err := xdg.ConfigFile("dreamhostdns/settings.json")
 	if err != nil {
 		conditionalLog(err.Error(), *verbose)
 		fileLogger.Fatal(err)
 	}
-	fmt.Printf("Logs can be found at: %s\n", logFilePath)
 	fmt.Printf("Looking for settings.jon. The file should be at the following path: %s\n", configFilePath)
-	newIPAddress := getHostIpAddress(*verbose)
+
 	settingsJson, err := os.Open(configFilePath)
 	// if os.Open returns an error then handle it
 	if err != nil {
@@ -92,11 +70,39 @@ func main() {
 		errorString := fmt.Sprintf("Could not unmashal json: %s\n", err)
 		conditionalLog(errorString, *verbose)
 		fileLogger.Fatal(errorString)
-		return
 	}
+	return settings
+}
+
+func main() {
+
+	logFilePath, _ := xdg.DataFile("dreamhostdns/dnsupdates.log")
+	logFile, err := os.OpenFile(logFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0775)
+	if err != nil {
+		log.Printf("Error %s\n", err)
+	}
+	fileLogger := log.New(logFile, "", log.LstdFlags)
+	fileLogger.SetOutput(&lumberjack.Logger{
+		Filename:   logFilePath,
+		MaxSize:    1, // megabytes
+		MaxBackups: 3,
+		MaxAge:     28,   //days
+		Compress:   true, // disabled by default
+	})
+	fmt.Printf("Logs can be found at: %s\n", logFilePath)
+	fileLogger.Println("############ NEW SESSION ################")
+
+	// parse CLI flags
+	verbose := flag.Bool("v", false, "prints log output to the commandline.")
+	flag.Parse()
+
+	settings := getSettings(fileLogger, verbose)
+
+	newIPAddress := getHostIpAddress(*verbose)
 	fmt.Printf("IP address outside the NAT is: %s\n", newIPAddress)
 	fileLogger.Printf("IP address outsite the NAT is %s\n", newIPAddress)
 	fmt.Printf("Domains to update are: %s\n", settings.Domains)
+
 	dnsRecords, err := dreamhostapi.GetDNSRecords(settings.ApiKey)
 	if err != nil {
 		logMessage := fmt.Sprintf("Cannot continue without DNS records. Error: %s", err)
