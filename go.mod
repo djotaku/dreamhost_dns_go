@@ -1,10 +1,13 @@
 module dreamhost_dns
 
-go 1.18
+go 1.21.11
+
+toolchain go1.21.12
 
 require (
-	github.com/adrg/xdg v0.4.0 // indirect
-	github.com/djotaku/dreamhostapi v1.2.2 // indirect
-	golang.org/x/sys v0.0.0-20211025201205-69cdffdb9359 // indirect
-	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
+	github.com/adrg/xdg v0.5.0
+	github.com/djotaku/dreamhostapi v1.2.4
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
+
+require golang.org/x/sys v0.22.0 // indirect

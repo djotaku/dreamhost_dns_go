@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 
@@ -84,7 +84,7 @@ func main() {
 
 		}
 	}(settingsJson)
-	byteValue, _ := ioutil.ReadAll(settingsJson)
+	byteValue, _ := io.ReadAll(settingsJson)
 	var settings *credentials
 	err = json.Unmarshal(byteValue, &settings)
 	if err != nil {
