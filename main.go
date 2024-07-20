@@ -9,7 +9,7 @@ import (
 	"os"
 
 	"github.com/adrg/xdg"
-	"github.com/djotaku/dreamhostapi"
+	"github.com/djotaku/dreamhostapi/v2"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
@@ -110,17 +110,10 @@ func main() {
 		conditionalLog(logMessage, *verbose)
 		log.Fatal(logMessage)
 	}
-	var records dreamhostapi.DnsRecordsJSON
-	err = json.Unmarshal([]byte(dnsRecords), &records)
-	if err != nil {
-		errorString := fmt.Sprintf("Unable to unmashal the JSON from Dreamhost. err is: %n", err)
-		conditionalLog(errorString, *verbose)
-		fileLogger.Fatal(errorString)
-	}
 
 	currentDNSValues := make(map[string]string)
-	for _, record := range records.Data {
-		currentDNSValues[record["record"]] = record["value"]
+	for _, record := range dnsRecords.Data {
+		currentDNSValues[record.Record] = record.Value
 	}
 
 	successMessage := "The following domains successfully updated: "
@@ -133,11 +126,11 @@ func main() {
 			logString := fmt.Sprintf("%s has an IP of %s. (If no value listed, this is a new domain.) Will attempt to change to %s (or add in the new domain)", myDomain, currentDNSValues[myDomain], newIPAddress)
 			fileLogger.Printf(logString)
 			conditionalLog(logString, *verbose)
-			addResult, deleteResult, err := dreamhostapi.UpdateDNSRecord(myDomain, currentDNSValues[myDomain], newIPAddress, settings.ApiKey)
-			updateResults := fmt.Sprintf("addResult: %s, deleteResult: %s", addResult, deleteResult)
+			addResult, deleteResult, err := dreamhostapi.UpdateDNSRecord(myDomain, currentDNSValues[myDomain], newIPAddress, settings.ApiKey, "")
+			updateResults := fmt.Sprintf("addResult: %s, deleteResult: %s", addResult.Result, deleteResult.Result)
 			conditionalLog(updateResults, *verbose)
 			if err != nil {
-				logMessage := fmt.Sprintf("An error occurred during DNS update. Add result: %s (did not ocurr if blank). Delete result: %s (did not occur if blank). Error: %s", addResult, deleteResult, err)
+				logMessage := fmt.Sprintf("An error occurred during DNS update. Add result: %s. Delete result: %s. Error: %s", addResult.Result, deleteResult.Result, err)
 				conditionalLog(logMessage, *verbose)
 				log.Println(logMessage)
 			} else {
