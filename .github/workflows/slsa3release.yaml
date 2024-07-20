@@ -50,11 +50,11 @@ jobs:
     strategy:
       matrix:
         # build and publish in parallel: linux/amd64, linux/arm64, windows/amd64, darwin/amd64, darwin/arm64
-        goos: [linux, windows, darwin]
-        goarch: [amd64, arm64]
+        os: [linux, windows, darwin]
+        arch: [amd64, arm64]
         exclude:
-          - goarch: arm64
-            goos: windows
+          - arch: arm64
+            os: windows
     uses: slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v2.0.0
     with:
           go-version-file: 'go.mod'
