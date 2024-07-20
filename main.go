@@ -127,8 +127,9 @@ func main() {
 			fileLogger.Printf(logString)
 			conditionalLog(logString, *verbose)
 			addResult, deleteResult, err := dreamhostapi.UpdateDNSRecord(myDomain, currentDNSValues[myDomain], newIPAddress, settings.ApiKey, "")
-			updateResults := fmt.Sprintf("addResult: %s, deleteResult: %s", addResult.Result, deleteResult.Result)
+			updateResults := fmt.Sprintf("%s: addResult: %s, deleteResult: %s", myDomain, addResult.Result, deleteResult.Result)
 			conditionalLog(updateResults, *verbose)
+			fileLogger.Printf(updateResults)
 			if err != nil {
 				logMessage := fmt.Sprintf("An error occurred during DNS update. Add result: %s. Delete result: %s. Error: %s", addResult.Result, deleteResult.Result, err)
 				conditionalLog(logMessage, *verbose)

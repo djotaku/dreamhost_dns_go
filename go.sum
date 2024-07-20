@@ -30,6 +30,8 @@ github.com/djotaku/dreamhostapi/v2 v2.0.0 h1:+Z6ZVHC2CvH6qGEWMI1ArXqQ3h8M41eCLU4
 github.com/djotaku/dreamhostapi/v2 v2.0.0/go.mod h1:icgMPv6E+ik5A8NNbH45VePcenvKn3wSjepEroH9wYU=
 github.com/djotaku/dreamhostapi/v2 v2.0.1 h1:B8UiwikZfG7iNpc0fzGAvTPSoDdm3eqc82jrtDJTtdo=
 github.com/djotaku/dreamhostapi/v2 v2.0.1/go.mod h1:icgMPv6E+ik5A8NNbH45VePcenvKn3wSjepEroH9wYU=
+github.com/djotaku/dreamhostapi/v2 v2.0.2 h1:ozSjYaKNfpSDIjFr0XaSJ6lO08Z1RfkcLgUyUgpiqaU=
+github.com/djotaku/dreamhostapi/v2 v2.0.2/go.mod h1:icgMPv6E+ik5A8NNbH45VePcenvKn3wSjepEroH9wYU=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=

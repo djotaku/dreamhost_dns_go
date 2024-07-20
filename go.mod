@@ -6,7 +6,7 @@ toolchain go1.21.12
 
 require (
 	github.com/adrg/xdg v0.5.0
-	github.com/djotaku/dreamhostapi/v2 v2.0.1
+	github.com/djotaku/dreamhostapi/v2 v2.0.2
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
