@@ -1,0 +1,8 @@
+# Version for this file.
+version: 1
+
+goos: linux
+
+goarch: arm64
+
+binary: dreamhostDNS-{{ .Os }}-{{ .Arch }}
