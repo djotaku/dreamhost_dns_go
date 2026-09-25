@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/adrg/xdg"
 	"github.com/djotaku/dreamhostapi/v2"
@@ -116,7 +117,8 @@ func main() {
 		currentDNSValues[record.Record] = record.Value
 	}
 
-	successMessage := "The following domains successfully updated: "
+	var successMessage strings.Builder
+	successMessage.WriteString("The following domains successfully updated: ")
 	for _, myDomain := range settings.Domains {
 		if currentDNSValues[myDomain] == newIPAddress {
 			logString := fmt.Sprintf("%s is already set to IP address: %s", myDomain, newIPAddress)
@@ -135,9 +137,9 @@ func main() {
 				conditionalLog(logMessage, *verbose)
 				log.Println(logMessage)
 			} else {
-				successMessage += fmt.Sprintf("%s, ", myDomain)
+				successMessage.WriteString(fmt.Sprintf("%s, ", myDomain))
 			}
 		}
 	}
-	fmt.Println(successMessage)
+	fmt.Println(successMessage.String())
 }
